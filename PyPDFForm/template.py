@@ -150,7 +150,10 @@ def update_text_field_attributes(
                     widgets[key].text_wrap_length = get_paragraph_auto_wrap_length(
                         widgets[key]
                     )
-                if widgets[key].value and should_adjust_font_size:
+
+                if widgets[key].value and (
+                    should_adjust_font_size or widgets[key].font_autosize
+                ):
                     if is_paragraph:
                         adjust_paragraph_font_size(_widget, widgets[key])
                     else:

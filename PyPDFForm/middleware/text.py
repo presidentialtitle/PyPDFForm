@@ -20,6 +20,7 @@ class Text(Widget):
 
         self.font = None
         self.font_size = None
+        self.font_autosize = False
         self.font_color = None
         self.text_wrap_length = None
         self.max_length = None
