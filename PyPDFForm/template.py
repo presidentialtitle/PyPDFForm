@@ -28,13 +28,13 @@ from .watermark import create_watermarks_and_draw
 
 
 def set_character_x_paddings(
-    pdf_stream: bytes, widgets: Dict[str, WIDGET_TYPES]
+    pdf_stream: bytes, widgets: Dict[str, WIDGET_TYPES], use_full_widget_name: bool = False
 ) -> Dict[str, WIDGET_TYPES]:
     """Sets paddings between characters for combed text fields."""
 
     for _widgets in get_widgets_by_page(pdf_stream).values():
         for widget in _widgets:
-            key = get_widget_key(widget)
+            key = get_widget_key(widget, use_full_widget_name)
             _widget = widgets[key]
 
             if isinstance(_widget, Text) and _widget.comb is True:
@@ -52,10 +52,10 @@ def build_widgets(
 
     for widgets in get_widgets_by_page(pdf_stream).values():
         for widget in widgets:
-            key = get_widget_key(widget)
+            key = get_widget_key(widget, use_full_widget_name)
             _widget = construct_widget(widget, key)
             if _widget is not None:
-                _widget.full_name = get_widget_full_key(widget)
+                _widget.full_name = get_widget_key(widget, True)
                 _widget.desc = get_widget_description(widget)
                 if isinstance(_widget, Text):
                     _widget.max_length = get_text_field_max_length(widget)
@@ -76,8 +76,6 @@ def build_widgets(
                     continue
 
                 results[key] = _widget
-                if _widget.full_name is not None and use_full_widget_name:
-                    results[_widget.full_name] = results[key]
     return results
 
 
@@ -121,12 +119,13 @@ def dropdown_to_text(dropdown: Dropdown) -> Text:
 def update_text_field_attributes(
     template_stream: bytes,
     widgets: Dict[str, WIDGET_TYPES],
+    use_full_widget_name: bool = False
 ) -> None:
     """Auto updates text fields' attributes."""
 
     for _widgets in get_widgets_by_page(template_stream).values():
         for _widget in _widgets:
-            key = get_widget_key(_widget)
+            key = get_widget_key(_widget, use_full_widget_name)
 
             if isinstance(widgets[key], Text):
                 should_adjust_font_size = False
@@ -186,7 +185,7 @@ def get_widgets_by_page(pdf: bytes) -> Dict[int, List[dict]]:
     return result
 
 
-def get_widget_key(widget: dict) -> Union[str, list, None]:
+def get_widget_key(widget: dict, full: bool = False) -> Union[str, None]:
     """Finds a PDF widget's annotated key by pattern matching."""
 
     result = None
@@ -195,6 +194,16 @@ def get_widget_key(widget: dict) -> Union[str, list, None]:
         if value:
             result = value
             break
+
+    if (
+        full and 
+        result and
+        Parent in widget
+        and T in widget[Parent].get_object()
+        and widget[Parent][T] != result
+    ):
+        return f"{widget[Parent][T]}.{result}"
+    
     return result
 
 
@@ -203,17 +212,7 @@ def get_widget_full_key(widget: dict) -> Union[str, None]:
     Returns a PDF widget's full annotated key by prepending its
     parent widget's key.
     """
-
-    key = get_widget_key(widget)
-
-    if (
-        Parent in widget
-        and T in widget[Parent].get_object()
-        and widget[Parent][T] != key
-    ):
-        return f"{widget[Parent][T]}.{key}"
-
-    return None
+    return get_widget_key(widget, True)
 
 
 def get_widget_alignment(widget: dict) -> Union[str, list, None]:

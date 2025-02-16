@@ -78,6 +78,8 @@ class PdfWrapper(FormWrapper):
         "use_full_widget_name",
     ]
 
+    use_full_widget_name = False
+
     def __init__(
         self,
         template: Union[bytes, str, BinaryIO] = b"",
@@ -99,7 +101,7 @@ class PdfWrapper(FormWrapper):
 
         refresh_not_needed = {}
         new_widgets = (
-            build_widgets(self.read(), getattr(self, "use_full_widget_name"))
+            build_widgets(self.read(), self.use_full_widget_name)
             if self.read()
             else {}
         )
@@ -183,6 +185,7 @@ class PdfWrapper(FormWrapper):
                         key: preview_widget_to_draw(value)
                         for key, value in self.widgets.items()
                     },
+                    self.use_full_widget_name
                 ),
                 widget_rect_watermarks(self.read()),
             )
@@ -218,11 +221,11 @@ class PdfWrapper(FormWrapper):
             if isinstance(value, Dropdown):
                 self.widgets[key] = dropdown_to_text(value)
 
-        update_text_field_attributes(self.stream, self.widgets)
+        update_text_field_attributes(self.stream, self.widgets, self.use_full_widget_name)
         if self.read():
-            self.widgets = set_character_x_paddings(self.stream, self.widgets)
+            self.widgets = set_character_x_paddings(self.stream, self.widgets, self.use_full_widget_name)
 
-        self.stream = remove_all_widgets(fill(self.stream, self.widgets))
+        self.stream = remove_all_widgets(fill(self.stream, self.widgets, self.use_full_widget_name))
 
         return self
 

@@ -106,6 +106,7 @@ def get_drawn_stream(to_draw: dict, stream: bytes, action: str) -> bytes:
 def fill(
     template_stream: bytes,
     widgets: Dict[str, WIDGET_TYPES],
+    use_full_widget_name: bool = False
 ) -> bytes:
     """Fills a PDF using watermarks."""
 
@@ -119,7 +120,7 @@ def fill(
         texts_to_draw[page] = []
         images_to_draw[page] = []
         for widget_dict in widget_dicts:
-            key = get_widget_key(widget_dict)
+            key = get_widget_key(widget_dict, use_full_widget_name)
             text_needs_to_be_drawn = False
             to_draw = x = y = None
 
