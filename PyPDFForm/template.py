@@ -188,23 +188,26 @@ def get_widgets_by_page(pdf: bytes) -> Dict[int, List[dict]]:
 def get_widget_key(widget: dict, full: bool = False) -> Union[str, None]:
     """Finds a PDF widget's annotated key by pattern matching."""
 
-    result = None
-    for pattern in WIDGET_KEY_PATTERNS:
-        value = traverse_pattern(pattern, widget)
-        if value:
-            result = value
+    p = widget
+
+    parts = []
+    while True:
+        if T in widget:
+            parts.append(widget.get(T))
+
+        if Parent in widget:
+            widget = widget[Parent].get_object()
+        else:
             break
 
-    if (
-        full and 
-        result and
-        Parent in widget
-        and T in widget[Parent].get_object()
-        and widget[Parent][T] != result
-    ):
-        return f"{widget[Parent][T]}.{result}"
-    
-    return result
+    if not parts:
+        return None
+
+    if not full:
+        return parts[0]
+    else:
+        return '.'.join(parts[::-1])
+
 
 
 def get_widget_full_key(widget: dict) -> Union[str, None]:
