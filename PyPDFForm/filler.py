@@ -25,7 +25,7 @@ from .patterns import (simple_flatten_generic, simple_flatten_radio,
                        simple_update_dropdown_value, simple_update_radio_value,
                        simple_update_text_value)
 from .template import get_widget_key, get_widgets_by_page
-from .utils import checkbox_radio_to_draw, stream_to_io
+from .utils import checkbox_radio_to_draw, stream_to_io, get_radio_value
 from .watermark import create_watermarks_and_draw, merge_watermarks_with_pdf
 
 
@@ -48,7 +48,7 @@ def check_radio_handler(
         radio_button_tracker[middleware.name] += 1
         if middleware.value == radio_button_tracker[middleware.name] - 1 or (
             isinstance(middleware.value, str)
-            and f"/{middleware.value}" in widget.get("/AP", {}).get("/N", {})
+            and middleware.value == get_radio_value(widget)
         ):
             text_needs_to_be_drawn = True
 

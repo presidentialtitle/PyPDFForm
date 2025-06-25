@@ -9,7 +9,8 @@ from pypdf.generic import DictionaryObject
 
 from .constants import (BUTTON_STYLES, DEFAULT_CHECKBOX_STYLE, DEFAULT_FONT,
                         DEFAULT_FONT_COLOR, DEFAULT_FONT_SIZE,
-                        DEFAULT_RADIO_STYLE, PREVIEW_FONT_COLOR, WIDGET_TYPES)
+                        DEFAULT_RADIO_STYLE, PREVIEW_FONT_COLOR, WIDGET_TYPES,
+                        AP, N)
 from .middleware.checkbox import Checkbox
 from .middleware.radio import Radio
 from .middleware.text import Text
@@ -42,6 +43,17 @@ def checkbox_radio_to_draw(
     )
 
     return new_widget
+
+
+def get_radio_value(widget: dict) -> str | None:
+    """Returns value for radio widget."""
+
+    normal_appearance = traverse_pattern({AP: {N: True}}, widget)
+    if normal_appearance:
+        appearance_key = list(normal_appearance.keys())[0][1:]
+        return appearance_key or None
+
+    return None
 
 
 def preview_widget_to_draw(widget: WIDGET_TYPES) -> Text:

@@ -18,14 +18,16 @@ class Radio(Checkbox):
 
         self.number_of_options = 0
 
+        # Use list here instead of set to keep order intact
+        self.choices = []
+
     @property
     def schema_definition(self) -> dict:
         """Json schema definition of the radiobutton."""
 
         return {
-            "maximum": self.number_of_options - 1,
             **super().schema_definition,
-            "type": "integer",
+            "enum": self.choices,
         }
 
     @property

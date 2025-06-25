@@ -23,7 +23,8 @@ from .patterns import (BUTTON_STYLE_PATTERNS, DROPDOWN_CHOICE_PATTERNS,
                        TEXT_FIELD_FLAG_PATTERNS, WIDGET_ALIGNMENT_PATTERNS,
                        WIDGET_DESCRIPTION_PATTERNS, WIDGET_KEY_PATTERNS,
                        WIDGET_TYPE_PATTERNS, update_annotation_name)
-from .utils import find_pattern_match, stream_to_io, traverse_pattern
+from .utils import (find_pattern_match, stream_to_io, traverse_pattern,
+                    get_radio_value)
 from .watermark import create_watermarks_and_draw
 
 
@@ -72,6 +73,9 @@ def build_widgets(
                     if key not in results:
                         results[key] = _widget
 
+                    value = get_radio_value(widget)
+                    if value and value not in results[key].choices:
+                        results[key].choices.append(value)
                     results[key].number_of_options += 1
                     continue
 
