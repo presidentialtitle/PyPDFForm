@@ -46,7 +46,10 @@ def check_radio_handler(
         if middleware.name not in radio_button_tracker:
             radio_button_tracker[middleware.name] = 0
         radio_button_tracker[middleware.name] += 1
-        if middleware.value == radio_button_tracker[middleware.name] - 1:
+        if middleware.value == radio_button_tracker[middleware.name] - 1 or (
+            isinstance(middleware.value, str)
+            and f"/{middleware.value}" in widget.get("/AP", {}).get("/N", {})
+        ):
             text_needs_to_be_drawn = True
 
     return to_draw, x, y, text_needs_to_be_drawn
