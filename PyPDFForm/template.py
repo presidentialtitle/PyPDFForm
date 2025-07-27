@@ -149,21 +149,24 @@ def get_widget_key(widget: dict, use_full_widget_name: bool) -> str:
     Returns:
         str: The extracted widget key.
     """
-    key = extract_widget_property(widget, WIDGET_KEY_PATTERNS, None, str)
+    p = widget
+
+    parts: list[str] = []
+    while True:
+        if T in widget:
+            parts.append(cast(str, widget.get(T)))
+
+        if Parent in widget:
+            widget = widget[Parent].get_object()
+        else:
+             break
+
+    if not parts:
+        return ''
+
     if not use_full_widget_name:
-        return key
-
-    if (
-        Parent in widget
-        and T in widget[Parent].get_object()
-        and widget[Parent].get_object()[T] != key  # sejda case
-    ):
-        key = (
-            f"{get_widget_key(widget[Parent].get_object(), use_full_widget_name)}.{key}"
-        )
-
-    return key
-
+        return parts[0]
+    return '.'.join(parts[::-1])
 
 def construct_widget(widget: dict, key: str) -> Union[WIDGET_TYPES, None]:
     """
