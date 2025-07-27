@@ -31,7 +31,7 @@ from typing import Any, BinaryIO, List, Union
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import ArrayObject, DictionaryObject, NameObject
 
-from .constants import SLASH, UNIQUE_SUFFIX_LENGTH, XFA, AcroForm, Annots, Root
+from .constants import AP, N, SLASH, UNIQUE_SUFFIX_LENGTH, XFA, AcroForm, Annots, Root
 
 
 @lru_cache
@@ -324,3 +324,13 @@ def generate_unique_suffix() -> str:
             for _ in range(UNIQUE_SUFFIX_LENGTH)
         ]
     )
+
+def get_radio_value(widget: dict) -> str | None:
+    """Returns value for radio widget."""
+
+    normal_appearance = traverse_pattern({AP: {N: True}}, widget)
+    if normal_appearance and isinstance(normal_appearance, dict):
+        appearance_key = list(normal_appearance.keys())[0][1:]
+        return appearance_key or None
+
+    return None

@@ -31,7 +31,7 @@ from .middleware.text import Text
 from .patterns import (update_checkbox_value, update_dropdown_value,
                        update_radio_value, update_text_value)
 from .template import get_widget_key
-from .utils import stream_to_io
+from .utils import get_radio_value, stream_to_io
 from .watermark import create_watermarks_and_draw, merge_watermarks_with_pdf
 
 
@@ -166,7 +166,7 @@ def fill(
                 if key not in radio_button_tracker:
                     radio_button_tracker[key] = 0
                 radio_button_tracker[key] += 1
-                if widget.value == radio_button_tracker[key] - 1:
+                if widget.value == radio_button_tracker[key] - 1 or (isinstance(widget.value, str) and get_radio_value(annot) == widget.value):
                     update_radio_value(annot)
             elif isinstance(widget, Dropdown):
                 update_dropdown_value(annot, widget)
